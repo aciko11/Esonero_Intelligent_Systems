@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 import os.path
 
 
-number_of_pages = 1
+number_of_pages = 10
 driver = webdriver.Chrome()
 driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
 #driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
@@ -39,6 +39,43 @@ driver.close()
 
 
 
+
+# Open the json file with all the data from the search
+with open("nomefile.json") as json_file:
+    json_data = json.load(json_file)
+
+
+# Tokenize the words (with apostrophe)
+json_data_tokenized = []
+for t in json_data:
+    json_data_tokenized.append(word_tokenize(t["title"]))
+
+# Tokenize the words with no apostrophe
+json_data_tokenized_no_apostrophe = []
+for word in json_data_tokenized:
+    tmp = [x.split("'") for x in word]
+    json_data_tokenized_no_apostrophe.append([y for x in tmp for y in x])
+
+############# Merging the NomeMaiuscolo #############
+temp_data = []
+for t in json_data_tokenized_no_apostrophe:
+    word_tokens = t
+    i = 0
+    while i < len(word_tokens):
+        j = i
+        while i < len(word_tokens) and word_tokens[i].istitle():
+            i = i + 1
+        if i != j:
+            i = i - 1
+        if i != j:
+            temp = word_tokens[j:i]
+            word_tokens[j:i] = ["".join(word_tokens[j:i])]
+        i = i + 1
+    temp_data.append(word_tokens)
+
+
+
+
 ############# Cleaning the file from stopwords #############
 #region cleaning_the_file_from_stopwords
 
@@ -66,17 +103,16 @@ else:
 
 #endregion check_for_my_corrected_stop_words_file
 
-# Open the json file with all the data from the search
-with open("nomefile.json") as json_file:
-    data = json.load(json_file)
-
 temp_words = []
-for t in data:
+final_data = []
+for t in temp_data:
     print("Titolo non filtrato: ")
-    print(t["title"])
-    word_tokens = word_tokenize(t["title"])
-    temp_words.append([word for word in word_tokens if not word in stop_words])
+    print(t)
+    final_data.append([word for word in t if not word in stop_words])
     print("Titolo filtrato: ")
-    print(temp_words[-1])
+    print(final_data[-1])
+
+with open("final_data.json","w") as json_file:
+            json.dump(final_data, json_file)
 
 #endregion cleaning_the_file_from_stopwords
