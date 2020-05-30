@@ -6,8 +6,10 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import os.path
+import csv
 
 
+#number_of_pages = 192
 number_of_pages = 10
 driver = webdriver.Chrome()
 driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
@@ -116,3 +118,17 @@ with open("final_data.json","w") as json_file:
             json.dump(final_data, json_file)
 
 #endregion cleaning_the_file_from_stopwords
+
+
+
+###################### Create the GEPHI file ####################
+
+with open('gephi_final_data.csv', 'w', newline='') as file:
+    writer = csv.writer(file, quoting = csv.QUOTE_NONE, escapechar=' ')
+    for row in final_data:
+        for i in range(len(row)):
+            j = i + 1
+            while j < len(row):
+                test = row[i] + "," + row[j]
+                writer.writerow([test])
+                j = j + 1
