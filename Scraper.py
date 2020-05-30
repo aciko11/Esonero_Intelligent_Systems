@@ -9,8 +9,8 @@ import os.path
 import csv
 
 
-#number_of_pages = 192
-number_of_pages = 10
+number_of_pages = 192
+#number_of_pages = 10
 driver = webdriver.Chrome()
 driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
 #driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
