@@ -9,11 +9,12 @@ import os.path
 import csv
 
 
-number_of_pages = 192
-#number_of_pages = 10
+number_of_pages = 14
+#number_of_pages = 192
+#number_of_pages = 1
 driver = webdriver.Chrome()
-driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
 #driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
+driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-01-07&todate=2020-02-07&sortby=ddate&author=&mode=all")
 articles_list=[]
 for page in range(number_of_pages):
     try:
@@ -105,14 +106,9 @@ else:
 
 #endregion check_for_my_corrected_stop_words_file
 
-temp_words = []
 final_data = []
 for t in temp_data:
-    print("Titolo non filtrato: ")
-    print(t)
     final_data.append([word for word in t if not word in stop_words])
-    print("Titolo filtrato: ")
-    print(final_data[-1])
 
 with open("final_data.json","w") as json_file:
             json.dump(final_data, json_file)
@@ -129,6 +125,6 @@ with open('gephi_final_data.csv', 'w', newline='') as file:
         for i in range(len(row)):
             j = i + 1
             while j < len(row):
-                test = row[i] + "," + row[j]
+                test = row[i].title() + "," + row[j].title()
                 writer.writerow([test])
                 j = j + 1
