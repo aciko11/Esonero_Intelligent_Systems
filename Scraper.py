@@ -9,12 +9,12 @@ import os.path
 import csv
 
 
-number_of_pages = 14
-#number_of_pages = 192
+#number_of_pages = 14
+number_of_pages = 192
 #number_of_pages = 1
 driver = webdriver.Chrome()
-#driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
-driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-01-07&todate=2020-02-07&sortby=ddate&author=&mode=all")
+driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-03-15&todate=2020-04-15&sortby=ddate&author=&mode=all")
+#driver.get("https://ricerca.repubblica.it/ricerca/repubblica?query=+mascherine&fromdate=2020-01-07&todate=2020-02-07&sortby=ddate&author=&mode=all")
 articles_list=[]
 for page in range(number_of_pages):
     try:
@@ -33,8 +33,6 @@ for page in range(number_of_pages):
         pages_links = navbar[0].find_elements_by_tag_name("li")
         address = pages_links[-1].find_element_by_tag_name("a").get_attribute("href")
         print(address)
-        with open("nomefile.json","w") as json_file:
-            json.dump(articles_list, json_file)
         driver.get(address)
     except:
         driver.close()
@@ -42,26 +40,20 @@ driver.close()
 
 
 
-
-# Open the json file with all the data from the search
-with open("nomefile.json") as json_file:
-    json_data = json.load(json_file)
-
-
 # Tokenize the words (with apostrophe)
-json_data_tokenized = []
-for t in json_data:
-    json_data_tokenized.append(word_tokenize(t["title"]))
+titles_tokenized = []
+for t in articles_list:
+    titles_tokenized.append(word_tokenize(t["title"]))
 
 # Tokenize the words with no apostrophe
-json_data_tokenized_no_apostrophe = []
-for word in json_data_tokenized:
+titles_tokenized_no_apostrophe = []
+for word in titles_tokenized:
     tmp = [x.split("'") for x in word]
-    json_data_tokenized_no_apostrophe.append([y for x in tmp for y in x])
+    titles_tokenized_no_apostrophe.append([y for x in tmp for y in x])
 
 ############# Merging the NomeMaiuscolo #############
 temp_data = []
-for t in json_data_tokenized_no_apostrophe:
+for t in titles_tokenized_no_apostrophe:
     word_tokens = t
     i = 0
     while i < len(word_tokens):
@@ -71,8 +63,8 @@ for t in json_data_tokenized_no_apostrophe:
         if i != j:
             i = i - 1
         if i != j:
-            temp = word_tokens[j:i]
-            word_tokens[j:i] = ["".join(word_tokens[j:i])]
+            temp = word_tokens[j:i+1]
+            word_tokens[j:i+1] = ["".join(word_tokens[j:i+1])]
         i = i + 1
     temp_data.append(word_tokens)
 
@@ -106,12 +98,10 @@ else:
 
 #endregion check_for_my_corrected_stop_words_file
 
+# Creating the final data without stop words
 final_data = []
 for t in temp_data:
     final_data.append([word for word in t if not word in stop_words])
-
-with open("final_data.json","w") as json_file:
-            json.dump(final_data, json_file)
 
 #endregion cleaning_the_file_from_stopwords
 
